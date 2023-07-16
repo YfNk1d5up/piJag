@@ -131,7 +131,7 @@ During summer 2023, a lot of heat has made the setup suffer. This is where I add
 
 ## obdSniffer
 
-To add more control on the car, I tried to hacked networks through the OBD2 port.
+To add more control on the car, I tried to hack bus networks through the OBD2 port.
 
 ### CAN Bus
 
@@ -146,11 +146,91 @@ Here are for example some data i decoded :
 As the X-Type shares its creation with the Ford Mondeo, the car uses SAEJ1850 PWM aka **Standard Corporate Protocol** or **SCP** to communicate low priority information between modules.
 
 A modification of Adam Varga code brings me the SCP decoding using the ELM327 OBD2 USB Reader using AT commands.
+Modified functions :
+*serialPacketReceiverCallback*
+*serialPortConnect*
+file *SerialReader.py*
 
 (You can see some SCP data on the previous screenshot)
 
 ![SCP Added](https://github.com/YfNk1d5up/piJag/blob/a38177459cb154fe60be0ee7a9ee079780110d36/Pictures/addedSCP.png)
 
+To achieve that, first I did some tests using AT on linux terminal
+
+```bash
+sudo screen /dev/ttyUSB0 38400
+```
+
+```bash
+>atz
+ELM327 v1.5
+
+>atl1
+OK
+
+>ath1
+OK
+
+>ats1
+OK
+
+>atal
+OK
+
+>atsp1
+OK
+
+>atma
+
+```
+
+For AT commands explanation, SCP application case and another hardware setup, see this thread : https://www.jaguarforum.com/threads/reverse-engineering-hacking-scp-bus-to-xj-x350-x358-s-type-and-x-type.108639/
+
+Example output :
+
+```bash
+81 29 60 02 0081 29 60 02 00 00 11
+41 87 60 04 08 B1
+81 7B 60 02 00 4C
+81 7B 60 02 00 4C
+```
+
+
 
 Missing car electrical service manual about SCP and CAN messages
+
+## OpenAuto Pro setup
+
+
+## Climate Control Module Hack
+
+The goal here was to remove the Control Unit that is space-consuming and overall avoid me to install the screen properly without destroying the case.
+To continue adding a modern touch to my X-Type, I enjoy controlling the climate directly on the touchscreen via an app on openAuto Pro.
+
+Firstly, I need to understand well how the existing module works.
+So i bought another one to avoid getting stuck breaking it : in deed, it is connected to the CAN Bus and the car will not start if the module doesn't work or isn't connected to the bus.
+
+By the CAN and SCP analyse done previously, I found that buttons user actions are not going through any bus on the car, plus the electrical documentation shows that the module only communicate with other modules to say an action has been performed.
+FYI, the second X-Type (X404) added LIN to the buses, where climate, windows control, driver wheel buttons, etc, communicate through it.
+
+But no chance, that is not the case for my version. So sensing commands on buses is impossible to control the climate module.
+
+That said, there is no only way than hacking electronics of the module by adding a custom Mod PCB.
+
+The Module consists in 2 PCBs connected by a 20 wires ribbon. On the electrical documentation, only the all module connections to the rest of the car is detailed. 
+Lucky for me, somebody already took a look into that module, because he wanted to change the screen to modern one. The report is joined in (Add subfolder link)
+
+(PCBs photos)
+
+The first PCB contains the MCU doing CAN communication to the reste of the vehicule, control of fans, compressor, etc : that is the one I want to keep.
+The second one contains all the buttons, the LCD screen, a digital encoder, and maybe a second propietary MCU impossible to identify : I want to replace this PCB.
+Doing some retro-engineering and finding the documentation of the MCU in the first PCB, here is the connection from and to that second PCB :
+
+(Old module retroengineering photos)
+
+You can see here a switches matrix, using 6 wires for 12 buttons. An I2C screen connected straigth to the main MCU, a rotary encoder also directly connected to the main board.
+What I used for the buttons is analog switches, that works as relays except that they are small 14 pins chips. For the rotary encoder, an arduino can easily simulate the signals by using two digital pins.
+
+
+
 ## Ressources
