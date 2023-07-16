@@ -1,0 +1,7 @@
+{
+  "name": "piJagApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
