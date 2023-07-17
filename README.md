@@ -43,7 +43,7 @@ Audio/Video Screen Unit of Jaguar X Type X400 based on a raspberry and openAuto 
 
 ![(to Add) OpenAuto Pro]()
 
-![(to Add) Wiring diagram]()
+![Wiring Setup](https://github.com/YfNk1d5up/piJag/blob/84df7824ad0f885efc3d49e76ffdeab592a43be3/Pictures/WiringSetup.jpg)
 ## Integration
 
 ### Raspberry Pi and carPiHat
@@ -235,6 +235,9 @@ Finally, using David's work about the i2c screen, I can get the information comi
 
 And so here is the mod board v0.1 :
 ![climateModBoard](https://github.com/YfNk1d5up/piJag/blob/a2ac1a76f2b90d971d53ccd2ccb150d1904e1d3c/Pictures/modPCB.png)
+![PCB3D](https://github.com/YfNk1d5up/piJag/blob/84df7824ad0f885efc3d49e76ffdeab592a43be3/Pictures/PCB3D.png)
+![PCBTop](https://github.com/YfNk1d5up/piJag/blob/84df7824ad0f885efc3d49e76ffdeab592a43be3/Pictures/PCBTop.png)
+![PCBBottom](https://github.com/YfNk1d5up/piJag/blob/84df7824ad0f885efc3d49e76ffdeab592a43be3/Pictures/PCBBottom.png)
 
 
 ## Ressources
