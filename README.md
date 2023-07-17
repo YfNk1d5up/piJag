@@ -30,7 +30,7 @@ Audio/Video Screen Unit of Jaguar X Type X400 based on a raspberry and openAuto 
 
 ## Features
 
-- **Phone** : CarPlay ,Android Auto, bluetooth, messages and calls
+- **Phone** : CarPlay, Android Auto, bluetooth, messages and calls
 - **Rear Camera** : Automatic on reverse gear or anytime manually
 - **Videos** : Kodi & Youtube
 - **OBD** : CAN & SCP (Ford Protocol) messages and control
@@ -49,7 +49,7 @@ Audio/Video Screen Unit of Jaguar X Type X400 based on a raspberry and openAuto 
 ### Raspberry Pi and carPiHat
 
 The issue with installing custom hardware on a car is mainly how to power and connect them. Should I use the permanent 12V, switched 12V on key, interior lights 12V ...
-The raspberry pi 4B is a 5V small computer that can draw 3A when loads are connected.
+The raspberry pi 4B is a 5V small computer that can draw 3A when loads are connected to it.
 In this setup, a lot of usb devices are connected and I should consider this ~3A as a constant.
 5V 3A, drawn from the car battery makes it impossible keeping powered on the constant battery supply.
 In deed it needs to be powered off when I'm not in the car, and it needs a 12V to 5V step-down.
@@ -108,11 +108,11 @@ while 1:
         time.sleep(0.1)  # Add a small sleep delay to reduce CPU usage
 ```
 
-As said in TJD documentation in the *Opto-Isolated Inputs* section, I needed to redirect the CS1 pin to BCM24 to get ill and reverse to work.
+As said in TJD documentation in the *Opto-Isolated Inputs* section, I needed to redirect the CS1 pin to BCM24 to get ill and reverse inputs to work.
 
 From the hat I also used the 2 outputs to control relays :
-- One relay power the **4Channels Audio Amplifier remote** and the rear camera with 12V
-- The other power the **36W USB Hub** to relieve the strain on the raspberry and charge devices.
+- One relay powers the **4Channels Audio Amplifier remote** and the rear camera with 12V
+- The other powers the **36W USB Hub** to relieve the strain on the raspberry and charge devices.
 
 (picture)
 
@@ -133,11 +133,13 @@ During summer 2023, a lot of heat has made the setup suffer. This is where I add
 
 To add more control on the car, I tried to hack bus networks through the OBD2 port.
 
+![X-Type BUS Networks](https://github.com/YfNk1d5up/piJag/blob/cd5db3b18367be92419ba5bebd26b652316670b5/Pictures/jagBUSNetworks.png)
+
 ### CAN Bus
 
 Following this awesome serie from Youtube [How to hack your car ](https://youtu.be/cAAzXM5vsi0) by Adam Varga and using his python&Qt [CAN_Gui](https://github.com/adamtheone/canDrive), I copy the setup to hack into my CAN Bus.
 
-Here are for example some data i decoded : 
+Here are for example some data I decoded : 
 
 ![obdSniffer GUI](https://github.com/YfNk1d5up/piJag/blob/a38177459cb154fe60be0ee7a9ee079780110d36/Pictures/obdSniffer.png)
 
@@ -145,7 +147,7 @@ Here are for example some data i decoded :
 
 As the X-Type shares its creation with the Ford Mondeo, the car uses SAEJ1850 PWM aka **Standard Corporate Protocol** or **SCP** to communicate low priority information between modules.
 
-A modification of Adam Varga code brings me the SCP decoding using the ELM327 OBD2 USB Reader using AT commands.
+A modification of Adam Varga code brings me the SCP decoding using the **ELM327 OBD2 USB Reader** using **AT** commands.
 Modified functions :
 *serialPacketReceiverCallback*
 *serialPortConnect*
@@ -196,8 +198,7 @@ Example output :
 ```
 
 
-
-Missing car electrical service manual about SCP and CAN messages
+See [X-Type Electrical Guide CAN/SCP](https://github.com/YfNk1d5up/piJag/blob/cf38571dc9505988becb3cf82d76548922db3a51/Docs/JagClimModule.pdf) to find more information about CAN and SCP messages
 
 ## OpenAuto Pro setup
 
@@ -208,29 +209,32 @@ The goal here was to remove the Control Unit that is space-consuming and overall
 To continue adding a modern touch to my X-Type, I enjoy controlling the climate directly on the touchscreen via an app on openAuto Pro.
 
 Firstly, I need to understand well how the existing module works.
-So i bought another one to avoid getting stuck breaking it : in deed, it is connected to the CAN Bus and the car will not start if the module doesn't work or isn't connected to the bus.
+So I bought another one to avoid getting stuck breaking it : in deed, it is connected to the CAN Bus and the car will not start if the module doesn't work or isn't connected to the bus.
 
 By the CAN and SCP analyse done previously, I found that buttons user actions are not going through any bus on the car, plus the electrical documentation shows that the module only communicate with other modules to say an action has been performed.
 FYI, the second X-Type (X404) added LIN to the buses, where climate, windows control, driver wheel buttons, etc, communicate through it.
 
-But no chance, that is not the case for my version. So sensing commands on buses is impossible to control the climate module.
+But no chance, that is not the case for my version. So sending commands on buses to control the climate module is impossible.
 
-That said, there is no only way than hacking electronics of the module by adding a custom Mod PCB.
+That said, there is no other way than hacking electronics of the module by adding a custom Mod PCB.
 
-The Module consists in 2 PCBs connected by a 20 wires ribbon. On the electrical documentation, only the all module connections to the rest of the car is detailed. 
-Lucky for me, somebody already took a look into that module, because he wanted to change the screen to modern one. The report is joined in (Add subfolder link)
+The Module consists in 2 PCBs connected by a 20 wires ribbon. On the electrical documentation, only the global module connections to the rest of the car is detailed. 
+Lucky for me, somebody already took a look into that module, because he wanted to change the screen to a modern one. The report is joined in [David's initial HVAC Sniffer](https://github.com/YfNk1d5up/piJag/blob/cf38571dc9505988becb3cf82d76548922db3a51/Docs/p10018_jag_hvac_sniffer.zip)
 
-(PCBs photos)
+![(HVAC PCBs)](https://github.com/YfNk1d5up/piJag/blob/cb95ea8a1820f61842fe06ae5841b4ef52b6cd94/Pictures/HVAC_PCBs.png)
 
-The first PCB contains the MCU doing CAN communication to the reste of the vehicule, control of fans, compressor, etc : that is the one I want to keep.
+The first PCB contains the MCU which does CAN communication to the rest of the vehicule, control of fans, compressor, etc : that is the one I want to keep.
 The second one contains all the buttons, the LCD screen, a digital encoder, and maybe a second propietary MCU impossible to identify : I want to replace this PCB.
 Doing some retro-engineering and finding the documentation of the MCU in the first PCB, here is the connection from and to that second PCB :
 
-(Old module retroengineering photos)
+[Initial retro-engineering of the 2nd PCB](https://github.com/YfNk1d5up/piJag/blob/cf38571dc9505988becb3cf82d76548922db3a51/Docs/piJagClim_existing_module.pdf)
 
 You can see here a switches matrix, using 6 wires for 12 buttons. An I2C screen connected straigth to the main MCU, a rotary encoder also directly connected to the main board.
-What I used for the buttons is analog switches, that works as relays except that they are small 14 pins chips. For the rotary encoder, an arduino can easily simulate the signals by using two digital pins.
+What I used for the buttons is analog switches, that works as relays except that they are small 14 pins chips, which each entry is controlled by an Arduino digital pin. For the rotary encoder, an Arduino Nano can easily simulate the signals by using two digital pins.
+Finally, using David's work about the i2c screen, I can get the information coming from the main MCU by decoding it using A4 and A5 pins on the Nano.
 
+And so here is the mod board v0.1 :
+![climateModBoard](https://github.com/YfNk1d5up/piJag/blob/a2ac1a76f2b90d971d53ccd2ccb150d1904e1d3c/Pictures/modPCB.png)
 
 
 ## Ressources
