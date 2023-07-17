@@ -39,15 +39,17 @@ Audio/Video Screen Unit of Jaguar X Type X400 based on a raspberry and openAuto 
 
 ## Screenshots
 
+![Wiring Setup](https://github.com/YfNk1d5up/piJag/blob/84df7824ad0f885efc3d49e76ffdeab592a43be3/Pictures/WiringSetup.jpg)
+
 ![Screen Setup](https://github.com/YfNk1d5up/piJag/blob/64cff6b3cc35ca0b5a0ff84e411a75a550c6c579/Pictures/ScreenSetup.jpg)
 
-Setup not clean for now ...
+Setup not clean for now (you can see the Climate Control Module annoying me for now, explaination later)...
 ![OpenAuto Pro CarPlay](https://github.com/YfNk1d5up/piJag/blob/66497bf83e961daac8e6991040f28b73a60db3fb/Pictures/carPlayReal.jpeg)
 ![OpenAuto Pro Rear Camera](https://github.com/YfNk1d5up/piJag/blob/66497bf83e961daac8e6991040f28b73a60db3fb/Pictures/rearCameraReal.jpeg)
 ![OpenAuto Pro OBD](https://github.com/YfNk1d5up/piJag/blob/66497bf83e961daac8e6991040f28b73a60db3fb/Pictures/OBDReal.jpeg)
 ![OpenAuto Pro Apps](https://github.com/YfNk1d5up/piJag/blob/66497bf83e961daac8e6991040f28b73a60db3fb/Pictures/appReal.jpeg)
 
-![Wiring Setup](https://github.com/YfNk1d5up/piJag/blob/84df7824ad0f885efc3d49e76ffdeab592a43be3/Pictures/WiringSetup.jpg)
+
 ## Integration
 
 ### Raspberry Pi and carPiHat
