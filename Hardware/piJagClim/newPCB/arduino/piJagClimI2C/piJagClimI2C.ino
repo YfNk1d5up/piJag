@@ -22,6 +22,7 @@ void setup()
   pinMode(i, OUTPUT);
   digitalWrite(i, LOW);
  }
+ // plus and minus temp
  test();
 }
 
