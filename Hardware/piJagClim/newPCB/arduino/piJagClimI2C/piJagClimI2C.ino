@@ -1,7 +1,7 @@
 
 #include <Wire.h>
-byte dataArray[18];
-
+byte dataArray[25];
+byte x;
 void setup()
 
 {
@@ -11,25 +11,61 @@ void setup()
   Wire.onReceive(receiveEvent); // register event
 
   Serial.begin(115200);           // start serial for output
-  
+  Serial.setTimeout(1);
  Serial.print("Initialisation");
- pinMode(A0, OUTPUT);
- digitalWrite(A0, LOW);
- pinMode(A1, OUTPUT);
- digitalWrite(A1, LOW);
- 
- for(int i=2; i<12; i++){
-  pinMode(i, OUTPUT);
-  digitalWrite(i, LOW);
- }
+   pinMode(A0, OUTPUT);
+   digitalWrite(A0, LOW);
+   pinMode(A1, OUTPUT);
+   digitalWrite(A1, LOW);
+   
+   for(int i=2; i<14; i++){
+    pinMode(i, OUTPUT);
+    digitalWrite(i, LOW);
+   }
  // plus and minus temp
- test();
+ //test();
 }
 
 
 void loop()
 
 {
+  Serial.flush();
+  while (!Serial.available());
+  x = Serial.read();
+  switch (x) {
+  case 0x01:
+    press_button(0);
+    Serial.write(x);
+    Serial.write(dataArray, 25);
+    break;
+  case 0x02:
+    press_button(2);
+    Serial.write(x);
+    Serial.write(dataArray, 25);
+    break;
+  case 0x03:
+    press_button(1);
+    Serial.write(x);
+    Serial.write(dataArray, 25);
+    break;
+  case 0x04:
+    press_button(3);
+    Serial.write(x);
+    Serial.write(dataArray, 25);
+    break;
+  case 0x05:
+    press_button(9);
+    Serial.write(x);
+    Serial.write(dataArray, 25);
+    break;
+  case 0x06:
+    press_button(5);
+    Serial.write(x);
+    Serial.write(dataArray, 25);
+    break;
+  }
+  
   delay(10);
 }
 
@@ -44,71 +80,24 @@ void receiveEvent(int howmany) //howmany registers the number bytes received fro
      {
           dataArray[i] = Wire.read();  
      }
-/*
-     for (int i=0; i<howmany; i++)
-     {
-         Serial.print(dataArray[i], HEX);   //check what you are receiving against an Intel-Hex frame
-         Serial.print(" ");
-      }*/
-      if(howmany >= 17){
-       Serial.print("Screen Logo, face arrow : ");
-       Serial.print(dataArray[7], HEX);
-       Serial.print("; ");
-       Serial.print("Little Man, feet arrow : ");
-       Serial.print(dataArray[9], HEX);
-       Serial.print("; ");
-       Serial.print("Auto : ");
-       Serial.print(dataArray[10], HEX);
-       Serial.print("; ");
-       Serial.print("Half degree point: ");
-       Serial.print(dataArray[11], HEX);
-       Serial.print(dataArray[12], HEX);
-       Serial.print("; ");
-       Serial.print("units: ");
-       Serial.print(dataArray[13], HEX);
-       Serial.print(dataArray[14], HEX);
-       Serial.print("; ");
-       Serial.print("tens: ");
-       Serial.print(dataArray[15], HEX);
-       Serial.print("; ");
-       Serial.print("Fan level: ");
-       Serial.print(dataArray[16], HEX);
-       Serial.print(dataArray[17], HEX);
-       Serial.print("; ");
-       Serial.println();
-       if(dataArray[11] == 0x0){
-        // press power on
-        digitalWrite(A0, LOW);
-        delay(10);
-        digitalWrite(A0, HIGH);
-        delay(800);
-        digitalWrite(A0, LOW);
-       }
-      }
-       
-      
-
 }
 int press_button(int pin){
   if(pin==0){
     digitalWrite(A0, LOW);
-    delay(10);
     digitalWrite(A0, HIGH);
-    delay(800);
+    delay(200);
     digitalWrite(A0, LOW);
   }
   else if(pin==1){
     digitalWrite(A1, LOW);
-    delay(10);
     digitalWrite(A1, HIGH);
-    delay(800);
+    delay(200);
     digitalWrite(A1, LOW);
   }
   else {
     digitalWrite(pin, LOW);
-    delay(10);
     digitalWrite(pin, HIGH);
-    delay(800);
+    delay(200);
     digitalWrite(pin, LOW);
   }
   return pin;
