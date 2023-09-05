@@ -2,6 +2,7 @@
 #include <Wire.h>
 byte dataArray[25];
 byte x;
+int dir;
 void setup()
 
 {
@@ -72,6 +73,12 @@ void loop()
   case 0x0c: // Recycle
     press_button(8);
     break;
+  case 0x0d: // up Fan
+    dir = rotary_encode(0);
+    break;
+  case 0x0e: // down Fan
+    dir = rotary_encode(1);
+    break;
   }
   delay(100);
   Serial.write(x);
@@ -110,6 +117,32 @@ int press_button(int pin){
     digitalWrite(pin, LOW);
   }
   return pin;
+}
+
+int rotary_encode(int direction){
+  if(direction==0){
+    digitalWrite(12, LOW);
+    digitalWrite(13, LOW);
+    digitalWrite(12, HIGH);
+    delay(50);
+    digitalWrite(13, HIGH);
+    delay(50);
+    digitalWrite(12, LOW);
+    delay(50);
+    digitalWrite(13, LOW);
+  }
+  else if(direction==1){
+    digitalWrite(12, LOW);
+    digitalWrite(13, LOW);
+    digitalWrite(13, HIGH);
+    delay(50);
+    digitalWrite(12, HIGH);
+    delay(50);
+    digitalWrite(13, LOW);
+    delay(50);
+    digitalWrite(12, LOW);
+  }
+  return direction;
 }
 
 void test() {
