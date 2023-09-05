@@ -12,7 +12,7 @@ void setup()
 
   Serial.begin(115200);           // start serial for output
   Serial.setTimeout(1);
- Serial.print("Initialisation");
+  //Serial.print("Initialisation");
    pinMode(A0, OUTPUT);
    digitalWrite(A0, LOW);
    pinMode(A1, OUTPUT);
@@ -34,39 +34,48 @@ void loop()
   while (!Serial.available());
   x = Serial.read();
   switch (x) {
-  case 0x01:
+  case 0x01: // ON OFF
     press_button(0);
-    Serial.write(x);
-    Serial.write(dataArray, 25);
     break;
-  case 0x02:
+  case 0x02: // minus
     press_button(2);
-    Serial.write(x);
-    Serial.write(dataArray, 25);
     break;
-  case 0x03:
+  case 0x03: // plus
     press_button(1);
-    Serial.write(x);
-    Serial.write(dataArray, 25);
     break;
-  case 0x04:
+  case 0x04: // auto
     press_button(3);
-    Serial.write(x);
-    Serial.write(dataArray, 25);
     break;
-  case 0x05:
+  case 0x05: // front defrost
     press_button(9);
-    Serial.write(x);
-    Serial.write(dataArray, 25);
     break;
-  case 0x06:
+  case 0x06: // face
     press_button(5);
-    Serial.write(x);
-    Serial.write(dataArray, 25);
+    break;
+  case 0x07: // face & feet
+    press_button(7);
+    break;
+  case 0x08: // feet
+    press_button(6);
+    break;
+  case 0x09: // front defrost & feet
+    press_button(4);
+    break;
+  case 0x0a: // A/C
+    press_button(10);
+    delay(100);
+    break;
+  case 0x0b: // rear defrost
+    press_button(11);
+    delay(100);
+    break;
+  case 0x0c: // Recycle
+    press_button(8);
     break;
   }
-  
-  delay(10);
+  delay(100);
+  Serial.write(x);
+  Serial.write(dataArray, 25);
 }
 
 
