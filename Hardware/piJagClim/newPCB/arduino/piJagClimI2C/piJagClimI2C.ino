@@ -64,11 +64,9 @@ void loop()
     break;
   case 0x0a: // A/C
     press_button(10);
-    delay(100);
     break;
   case 0x0b: // rear defrost
     press_button(11);
-    delay(100);
     break;
   case 0x0c: // Recycle
     press_button(8);
