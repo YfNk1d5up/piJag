@@ -239,15 +239,22 @@ You can see here a switches matrix, using 6 wires for 12 buttons. An I2C screen 
 What I used for the buttons is analog switches, that works as relays except that they are small 14 pins chips, which each entry is controlled by an Arduino digital pin. For the rotary encoder, an Arduino Nano can easily simulate the signals by using two digital pins.
 Finally, using David's work about the i2c screen, I can get the information coming from the main MCU by decoding it using A4 and A5 pins on the Nano.
 
-And so here is the mod board v0.1 :
-![climateModBoard](https://github.com/YfNk1d5up/piJag/blob/a2ac1a76f2b90d971d53ccd2ccb150d1904e1d3c/Pictures/modPCB.png)
-![PCB3D](https://github.com/YfNk1d5up/piJag/blob/84df7824ad0f885efc3d49e76ffdeab592a43be3/Pictures/PCB3D.png)
+And so here is the mod board v0.2 :
+![climateModBoardv0.2](https://github.com/YfNk1d5up/piJag/blob/02c07f15b5d4da5aba3c15b77e0242e454c88a4f/Docs/newPCBv0.2.pdf)
+![PCB3Dv0.2](https://github.com/YfNk1d5up/piJag/blob/02c07f15b5d4da5aba3c15b77e0242e454c88a4f/Pictures/PCB3Dv0.2.png)
 
 JLCPCB Manufacture :
 
 ![JLCPCB Order](https://github.com/YfNk1d5up/piJag/blob/66497bf83e961daac8e6991040f28b73a60db3fb/Pictures/jlcpcbOrder.jpeg)
-![PCB not mounted](https://github.com/YfNk1d5up/piJag/blob/66497bf83e961daac8e6991040f28b73a60db3fb/Pictures/PCBnotmounted.jpeg)
-![PCB mounted](https://github.com/YfNk1d5up/piJag/blob/66497bf83e961daac8e6991040f28b73a60db3fb/Pictures/PCBmounted3d.jpeg)
+![PCB not mounted]
+![PCB mounted]
 
+To communicate with the arduino onboard, a pyQt App controls the mod, associated with an arduino code that simulates the action and transmit the i2c data.
+
+[pyQtApp](Software/piJagClimApp)
+[piJagClimI2C.ino](Hardware/piJagClim/newPCB/arduino/piJagClimI2C/piJagClimI2C.ino)
+
+Here you can see the Qt App v0.1 :
+![piJagClimAppv0.1](https://github.com/YfNk1d5up/piJag/blob/02c07f15b5d4da5aba3c15b77e0242e454c88a4f/Pictures/qtPiJagClimApp_v0.1.png)
 
 ## Ressources
