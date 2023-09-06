@@ -77,6 +77,8 @@ void loop()
   case 0x0e: // down Fan
     dir = rotary_encode(1);
     break;
+   case 0x10: // ask values
+    break;
   }
   delay(100);
   Serial.write(x);
@@ -94,6 +96,7 @@ void receiveEvent(int howmany) //howmany registers the number bytes received fro
      {
           dataArray[i] = Wire.read();  
      }
+     //Serial.write(dataArray, 25);
 }
 int press_button(int pin){
   if(pin==0){
