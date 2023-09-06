@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from utils import SimpleDial
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -34,7 +34,7 @@ class Ui_MainWindow(object):
         self.tempValueLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.tempValueLabel.setObjectName("tempValueLabel")
         self.verticalLayoutTemp.addWidget(self.tempValueLabel)
-        self.tempDial = QtWidgets.QDial(self.centralwidget)
+        self.tempDial = SimpleDial(self.centralwidget)
         self.tempDial.setMinimum(0)
         self.tempDial.setMaximum(30)
         self.tempDial.setSingleStep(1)

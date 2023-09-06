@@ -27,6 +27,7 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         # Temperature
 
         self.tempDial.setValue(21)
+        self.tempDial.changeColor(255,255,0,127)
         self.tempValueLabel.setText("26.5")
         self.temp = self.tempDial.value()
 
@@ -166,6 +167,7 @@ def main():
     gui = piJagClimateGUI()
 
     gui.show()
+    app.setStyle('Fusion')
     app.exec_()
 
 if __name__ == '__main__':

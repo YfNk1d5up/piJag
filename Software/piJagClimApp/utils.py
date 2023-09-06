@@ -1,5 +1,103 @@
+from PyQt5 import QtCore, QtGui, QtWidgets
+class SimpleDial(QtWidgets.QDial):
 
 
+    def paintEvent(self, event=None, red=255, green=0, blue=0, alpha=127):
+        # create a QStyleOption for the dial, and initialize it with the basic properties
+        # that will be used for the configuration of the painter
+        opt = QtWidgets.QStyleOptionSlider()
+        self.initStyleOption(opt)
+
+        # construct a QRectF that uses the minimum between width and height,
+        # and adds some margins for better visual separation
+        # this is partially taken from the fusion style helper source
+        width = opt.rect.width()
+        height = opt.rect.height()
+        r = min(width, height) / 2
+        r -= r / 50
+        d_ = r / 6
+        dx = opt.rect.x() + d_ + (width - 2 * r) / 2 + 1
+        dy = opt.rect.y() + d_ + (height - 2 * r) / 2 + 1
+        br = QtCore.QRectF(dx + .5, dy + .5,
+            int(r * 2 - 2 * d_ - 2),
+            int(r * 2 - 2 * d_ - 2))
+
+        penColor = QtGui.QColor(red, green, blue, alpha)
+        qp = QtGui.QPainter(self)
+        qp.setRenderHints(qp.Antialiasing)
+        qp.setPen(QtGui.QPen(penColor, 4))
+        qp.drawEllipse(br)
+
+        # find the "real" value ratio between minimum and maximum
+        realValue = (self.value() - self.minimum()) / (self.maximum() - self.minimum())
+        # compute the angle at which the dial handle should be placed, assuming
+        # a range between 240° and 300° (moving clockwise)
+        angle = 240 - 300 * realValue
+        # create a polar line for the position of the handle; this can also
+        # be done using the math module with some performance improvement
+        line = QtCore.QLineF.fromPolar(r * .6, angle)
+        line.translate(br.center())
+        ds = r / 5
+        # create the handle rect and position it at the end of the polar line
+        handleRect = QtCore.QRectF(0, 0, ds, ds)
+        handleRect.moveCenter(line.p2())
+        qp.setPen(QtGui.QPen(penColor, 2))
+        qp.drawEllipse(handleRect)
+
+    def changeColor(self,r,g,b,a):
+        self.paintEvent(r,g,b,a)
+"""
+class GaugeWidget(QtGui.QWidget):
+
+    def __init__(self, initialValue=0, *args, **kwargs):
+        super(GaugeWidget, self).__init__(*args, **kwargs)
+        self._bg = QtGui.QPixmap("bg.png")
+        self.setValue(initialValue)
+
+    def setValue(self, val):
+        val = float(min(max(val, 0), 1))
+        self._value = -270 * val
+        self.update()
+
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(painter.Antialiasing)
+        rect = event.rect()
+
+        gauge_rect = QtCore.QRect(rect)
+        size = gauge_rect.size()
+        pos = gauge_rect.center()
+        gauge_rect.moveCenter( QtCore.QPoint(pos.x()-size.width(), pos.y()-size.height()) )
+        gauge_rect.setSize(size*.9)
+        gauge_rect.moveCenter(pos)
+
+        refill_rect = QtCore.QRect(gauge_rect)
+        size = refill_rect.size()
+        pos = refill_rect.center()
+        refill_rect.moveCenter( QtCore.QPoint(pos.x()-size.width(), pos.y()-size.height()) )
+        # smaller than .9 == thicker gauge
+        refill_rect.setSize(size*.9)
+        refill_rect.moveCenter(pos)
+
+        painter.setPen(QtCore.Qt.NoPen)
+
+        painter.drawPixmap(rect, self._bg)
+
+        painter.save()
+        grad = QtGui.QConicalGradient(QtCore.QPointF(gauge_rect.center()), 270.0)
+        grad.setColorAt(.75, QtCore.Qt.green)
+        grad.setColorAt(.5, QtCore.Qt.yellow)
+        grad.setColorAt(.25, QtCore.Qt.red)
+        painter.setBrush(grad)
+        painter.drawPie(gauge_rect, 225.0*16, self._value*16)
+        painter.restore()
+
+        painter.setBrush(QtGui.QBrush(self._bg.scaled(rect.size())))
+        painter.drawEllipse(refill_rect)
+
+        super(GaugeWidget,self).paintEvent(event)
+"""
 class readObject():
     def __init__(self, x):
         self.x = x
