@@ -2,7 +2,9 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication
 
 import piJagClimv1_ui
-from utils import arduinoSimul, temp, fan, air, bit_detect_2
+from arduinoReader import SerialReaderThread
+from arduinoWriter import SerialWriterThread
+from utils_infpy310 import arduinoSimul, temp, fan, air, temp2tempDial
 import serial
 import serial.tools.list_ports
 import time
@@ -12,7 +14,9 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.simul = False
+
+        # Initialize and connect to serial or simulate
+
         self.comPorts = serial.tools.list_ports.comports()
         self.nameList = list(port.device for port in self.comPorts)
         if len(self.nameList) > 0:
@@ -22,14 +26,29 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
             self.arduino = arduinoSimul()
             self.simul = True
 
+        # Serial threads
+
+        self.serialReaderThread = SerialReaderThread(serial=self.arduino)
+        self.serialReaderThread.receivedPacketSignal.connect(self.serialPacketReceiverCallback)
+        self.serialWriterThread = SerialWriterThread(serial=self.arduino)
+        self.serialReaderThread.start()
+        self.serialWriterThread.start()
+
+        # Label Values
+
+        self._temp = ""
+        self._fan = ""
+        self._air = ""
+        self._tempDial = 15
+        self._fanDial = 5
 
 
         # Temperature
 
-        self.tempDial.setValue(21)
-        self.tempDial.changeColor(255,255,0,127)
-        self.tempValueLabel.setText("26.5")
-        self.temp = self.tempDial.value()
+        #self.tempDial.setValue(21)
+        #self.tempDial.changeColor(255,255,0,127)
+        #self.tempValueLabel.setText("26.5")
+        #self.temp = self.tempDial.value()
 
         self.tempDial.valueChanged.connect(self.changeTemp)
         self.tempPlusButton.clicked.connect(self.plusTemp)
@@ -39,9 +58,8 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
 
         # Fan
 
-        self.fanDial.setValue(9)
-        self.fanValueLabel.setText("9")
-        self.fan = self.fanDial.value()
+        #self.fanDial.setValue(5)
+        #self.fan = self.fanDial.value()
 
         self.fanDial.valueChanged.connect(self.changeFan)
         self.fanMinusButton.clicked.connect(self.minusFan)
@@ -57,109 +75,73 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.airRearDefrostButton.clicked.connect(self.airRear)
         self.airRecyclingButton.clicked.connect(self.airRecycle)
 
+        time.sleep(1.5) # Wait for threads to initialize
+        self.write(b'\x10') # Ask for values
 
+    def serialPacketReceiverCallback(self, packet):
+        self._temp = temp(packet)
+        self._fan = fan(packet)
+        self._air = air(packet)
+        self.tempValueLabel.setText(self._temp)
+        self.fanValueLabel.setText(self._fan)
+        self.airValueLabel.setText(self._air)
+        self._tempDial = temp2tempDial(self._temp)
+        self.tempDial.setValue(self._tempDial)
+        if self._fan != 'Auto':
+            self._fanDial = int(self._fan)
+            self.fanDial.setValue(self._fanDial)
+
+
+    def write(self, x):
+        self.serialWriterThread.write(x)
     # Temperature
     def plusTemp(self, fromChange = False):
-        _temp = temp(self.write_read(b'\x03'))
-        self.tempValueLabel.setText(_temp)
-        if not fromChange:
-            if len(_temp)<3:
-                if _temp[0]=='H':
-                    self.temp = 31
-                else:
-                    self.temp = 1
-            else:
-                self.temp = int((float(_temp) - 16) * 2) + 1
-            self.tempDial.setValue(self.temp)
+        self.write(b'\x03')
     def minusTemp(self, fromChange = False):
-        _temp = temp(self.write_read(b'\x02'))
-        self.tempValueLabel.setText(_temp)
-        if not fromChange:
-            if len(_temp) < 3:
-                if _temp[0] == 'H':
-                    self.temp = 31
-                else:
-                    self.temp = 1
-            else:
-                self.temp = int((float(_temp) - 16) * 2) + 1
-            self.tempDial.setValue(self.temp)
+        self.write(b'\x02')
+
     def changeTemp(self):
         _temp = self.tempDial.value()
-        diff = int(_temp) - int(self.temp)
+        diff = int(_temp) - int(self._tempDial)
         for i in range(abs(diff)):
             if diff < 0:
                 self.minusTemp(True)
             else:
                 self.plusTemp(True)
-        self.temp = _temp
     def autoTemp(self):
-        self.tempValueLabel.setText(temp(self.write_read("?")))
+        self.write("?")
     def tempAC(self):
-        self.airValueLabel.setText(air(self.write_read(b'\x0a')))
+        self.write(b'\x0a')
 
     # Fan
     def plusFan(self, fromChange = False):
-        _fan = fan(self.write_read(b'\x0d'))
-        self.fanValueLabel.setText(_fan)
-        self.fan = int(_fan)
-        if not fromChange:
-            self.fanDial.setValue(int(_fan))
+        self.write(b'\x0d')
     def minusFan(self, fromChange = False):
-        _fan = fan(self.write_read(b'\x0e'))
-        self.fanValueLabel.setText(_fan)
-        self.fan = int(_fan)
-        if not fromChange:
-            self.fanDial.setValue(int(_fan))
+        self.write(b'\x0e')
     def changeFan(self):
         _fan = self.fanDial.value()
-        diff = int(_fan) - int(self.fan)
+        diff = int(_fan) - int(self._fanDial)
         for i in range(abs(diff)):
             if diff < 0:
                 self.minusFan()
             else:
                 self.plusFan()
-        self.fan = _fan
     def autoFan(self):
-        self.fanValueLabel.setText(fan(self.write_read(b'\x04')))
+        self.write(b'\x04')
 
     def airFace(self):
-        values = self.write_read(b'\x06')
-        self.airValueLabel.setText(air(values))
-        self.fanValueLabel.setText(fan(values))
+        self.write(b'\x06')
     def airFeet(self):
-        values = self.write_read(b'\x08')
-        self.airValueLabel.setText(air(values))
-        self.fanValueLabel.setText(fan(values))
+        self.write(b'\x08')
     def airFeetFace(self):
-        values = self.write_read(b'\x07')
-        self.airValueLabel.setText(air(values))
-        self.fanValueLabel.setText(fan(values))
+        self.write(b'\x07')
+
     def airFront(self):
-        values = self.write_read(b'\x05')
-        self.airValueLabel.setText(air(values))
-        self.fanValueLabel.setText(fan(values))
+        self.write(b'\x05')
     def airRear(self):
-        values = self.write_read(b'\x0b')
-        self.airValueLabel.setText(air(values))
-        self.fanValueLabel.setText(fan(values))
+        self.write(b'\x0b')
     def airRecycle(self):
-        values = self.write_read(b'\x0c')
-        self.airValueLabel.setText(air(values))
-        self.fanValueLabel.setText(fan(values))
-
-
-    def write_read(self, x):
-
-        data = []
-        self.arduino.write(x)
-        if not self.simul:
-            time.sleep(0.35)
-        numBytes = self.arduino.inWaiting()
-        # print(numBytes)
-        if numBytes > 0:
-            for i in range(numBytes):
-                data.append(self.arduino.read().hex())
-        return data
+        self.write(b'\x0c')
 
 
 def main():

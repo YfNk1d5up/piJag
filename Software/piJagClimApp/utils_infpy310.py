@@ -117,121 +117,122 @@ class arduinoSimul():
             '7': "0f-f0", '8': "8f-f0", '9': "af-f0", '10': "ef-f0", '11': "ff-f0"}
         self.i = 0
     def write(self, x):
-        match x:
-            case b'\x01': # ONOFF
-                pass
-                
-            case b'\x02': # minus
-                _temp = temp(self.values)
-                if len(_temp) < 3:
-                    if _temp[0] == 'H':
-                        _temp = '31.0'
-                    else:
-                        _temp = '16.0'
-                try:
-                    new_temp = float(_temp)-0.5
-                    if new_temp > 16:
-                        _temp = "{:.1f}".format(new_temp)
-                        _tens = self.dict_temps['tens'][_temp[0]]
-                        _units = self.dict_temps['units'][_temp[1]]
-                        _setpoints = self.dict_temps['setpoints'][_temp[2:]]
-                        self.values[15] = _tens
-                        self.values[13] = _units.split('-')[0]
-                        self.values[14] = _units.split('-')[1]
-                        self.values[11] = _setpoints.split('-')[0]
-                        self.values[12] = _setpoints.split('-')[1]
-                    else:
-                        self.values[15] = self.dict_temps['tens']['L']
-                except Exception as e:
-                    print(str(e))
-                
+        if x == b'\x01': # ONOFF
+            pass
 
-            case b'\x03': # plus
-                _temp = temp(self.values)
-                if len(_temp) < 3:
-                    if _temp[0] == 'H':
-                        _temp = '31.0'
-                    else:
-                        _temp = '16.0'
-                try:
-                    new_temp = float(_temp) + 0.5
-                    if new_temp < 31:
-                        _temp = "{:.1f}".format(new_temp)
-                        _tens = self.dict_temps['tens'][_temp[0]]
-                        _units = self.dict_temps['units'][_temp[1]]
-                        _setpoints = self.dict_temps['setpoints'][_temp[2:]]
-                        self.values[15] = _tens
-                        self.values[13] = _units.split('-')[0]
-                        self.values[14] = _units.split('-')[1]
-                        self.values[11] = _setpoints.split('-')[0]
-                        self.values[12] = _setpoints.split('-')[1]
-                    else:
-                        self.values[15] = self.dict_temps['tens']['H']
-                except Exception as e:
-                    print(str(e))
-                
-            case b'\x04': # auto
-                self.values[10] = '84'
-                
-            case b'\x05': # front defrost
-                self.values[10] = '80'
-                self.values[9] = '00'
-                self.values[7] = '80'
-                
-            case b'\x06': # face
-                self.values[10] = '80'
-                self.values[9] = '80'
-                self.values[7] = '08'
-                
-            case b'\x07': # face & feet
-                self.values[10] = '80'
-                self.values[9] = '88'
-                self.values[7] = '08'
-                
-            case b'\x08': # feet
-                self.values[10] = '80'
-                self.values[9] = '88'
-                self.values[7] = '00'
-                
-            case b'\x09': # front defrost & feet
-                self.values[10] = '80'
-                self.values[9] = '80'
-                self.values[7] = '88'
-                
-            case b'\x0a': # A / C
-                pass
-                
-            case b'\x0b': # rear defrost
-                pass
-                
-            case b'\x0c': # Recycle
-                pass
-                
-            case b'\x0d': # up Fan
-                self.values[10] = '80'
-                _fan = int(fan(self.values))
-                try:
-                    if _fan == 11:
-                        _fan = 10
-                    new_fan = _fan + 1
-                    _fans = self.dict_fans[str(new_fan)]
-                    self.values[17] = _fans.split('-')[0]
-                    self.values[18] = _fans.split('-')[1]
-                except Exception as e:
-                    print(str(e))
-                
-            case b'\x0e': # down Fan
-                self.values[10] = '80'
-                _fan = int(fan(self.values))
-                try:
-                    if _fan == 1:
-                        _fan = 2
-                    new_fan = _fan - 1
-                    _fans = self.dict_fans[str(new_fan)]
-                    self.values[17] = _fans.split('-')[0]
-                    self.values[18] = _fans.split('-')[1]
-                except Exception as e:
-                    print(str(e))
+        elif x == b'\x02': # minus
+            _temp = temp(self.values)
+            if len(_temp) < 3:
+                if _temp[0] == 'H':
+                    _temp = '31.0'
+                else:
+                    _temp = '16.0'
+            try:
+                new_temp = float(_temp)-0.5
+                if new_temp > 16:
+                    _temp = "{:.1f}".format(new_temp)
+                    _tens = self.dict_temps['tens'][_temp[0]]
+                    _units = self.dict_temps['units'][_temp[1]]
+                    _setpoints = self.dict_temps['setpoints'][_temp[2:]]
+                    self.values[15] = _tens
+                    self.values[13] = _units.split('-')[0]
+                    self.values[14] = _units.split('-')[1]
+                    self.values[11] = _setpoints.split('-')[0]
+                    self.values[12] = _setpoints.split('-')[1]
+                else:
+                    self.values[15] = self.dict_temps['tens']['L']
+            except Exception as e:
+                print(str(e))
+
+
+        elif x == b'\x03': # plus
+            _temp = temp(self.values)
+            if len(_temp) < 3:
+                if _temp[0] == 'H':
+                    _temp = '31.0'
+                else:
+                    _temp = '16.0'
+            try:
+                new_temp = float(_temp) + 0.5
+                if new_temp < 31:
+                    _temp = "{:.1f}".format(new_temp)
+                    _tens = self.dict_temps['tens'][_temp[0]]
+                    _units = self.dict_temps['units'][_temp[1]]
+                    _setpoints = self.dict_temps['setpoints'][_temp[2:]]
+                    self.values[15] = _tens
+                    self.values[13] = _units.split('-')[0]
+                    self.values[14] = _units.split('-')[1]
+                    self.values[11] = _setpoints.split('-')[0]
+                    self.values[12] = _setpoints.split('-')[1]
+                else:
+                    self.values[15] = self.dict_temps['tens']['H']
+            except Exception as e:
+                print(str(e))
+
+        elif x == b'\x04': # auto
+            self.values[10] = '84'
+
+        elif x == b'\x05': # front defrost
+            self.values[10] = '80'
+            self.values[9] = '00'
+            self.values[7] = '80'
+
+        elif x == b'\x06': # face
+            self.values[10] = '80'
+            self.values[9] = '80'
+            self.values[7] = '08'
+
+        elif x == b'\x07': # face & feet
+            self.values[10] = '80'
+            self.values[9] = '88'
+            self.values[7] = '08'
+
+        elif x == b'\x08': # feet
+            self.values[10] = '80'
+            self.values[9] = '88'
+            self.values[7] = '00'
+
+        elif x == b'\x09': # front defrost & feet
+            self.values[10] = '80'
+            self.values[9] = '80'
+            self.values[7] = '88'
+
+        elif x == b'\x0a': # A / C
+            pass
+
+        elif x == b'\x0b': # rear defrost
+            pass
+
+        elif x == b'\x0c': # Recycle
+            pass
+
+        elif x == b'\x0d': # up Fan
+            self.values[10] = '80'
+            _fan = int(fan(self.values))
+            try:
+                if _fan == 11:
+                    _fan = 10
+                new_fan = _fan + 1
+                _fans = self.dict_fans[str(new_fan)]
+                self.values[17] = _fans.split('-')[0]
+                self.values[18] = _fans.split('-')[1]
+            except Exception as e:
+                print(str(e))
+
+        elif x == b'\x0e': # down Fan
+            self.values[10] = '80'
+            _fan = int(fan(self.values))
+            try:
+                if _fan == 1:
+                    _fan = 2
+                new_fan = _fan - 1
+                _fans = self.dict_fans[str(new_fan)]
+                self.values[17] = _fans.split('-')[0]
+                self.values[18] = _fans.split('-')[1]
+            except Exception as e:
+                print(str(e))
+        elif x == b'\x10': # down Fan
+            pass
                 
         return x
 
@@ -271,6 +272,19 @@ def temp(value):
     except:
         temperature = "Can't read"
     return temperature
+
+def temp2tempDial(_temp):
+    try:
+        if len(_temp) < 3:
+            if _temp[0] == 'H':
+                dial = 30
+            else:
+                dial = 0
+        else:
+            dial = int((float(_temp) - 16) * 2)
+        return dial
+    except ValueError:
+        return 15
 
 def fan(value):
     val = value[17] + "-" + value[18]

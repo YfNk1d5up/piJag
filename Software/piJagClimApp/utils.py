@@ -272,6 +272,16 @@ def temp(value):
         temperature = "Can't read"
     return temperature
 
+def temp2tempDial(_temp):
+    if len(_temp) < 3:
+        if _temp[0] == 'H':
+            dial = 31
+        else:
+            dial = 1
+    else:
+        dial = int((float(_temp) - 16) * 2) + 1
+    return dial
+
 def fan(value):
     val = value[17] + "-" + value[18]
     auto = bit_detect_2(value[10], 2)
