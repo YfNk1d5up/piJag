@@ -108,13 +108,13 @@ int press_button(int pin){
   else if(pin==1){
     digitalWrite(A1, LOW);
     digitalWrite(A1, HIGH);
-    delay(200);
+    delay(150);
     digitalWrite(A1, LOW);
   }
   else {
     digitalWrite(pin, LOW);
     digitalWrite(pin, HIGH);
-    delay(200);
+    delay(150);
     digitalWrite(pin, LOW);
   }
   return pin;
@@ -125,22 +125,22 @@ int rotary_encode(int direction){
     digitalWrite(12, LOW);
     digitalWrite(13, LOW);
     digitalWrite(12, HIGH);
-    delay(50);
+    delay(20);
     digitalWrite(13, HIGH);
-    delay(50);
+    delay(20);
     digitalWrite(12, LOW);
-    delay(50);
+    delay(20);
     digitalWrite(13, LOW);
   }
   else if(direction==1){
     digitalWrite(12, LOW);
     digitalWrite(13, LOW);
     digitalWrite(13, HIGH);
-    delay(50);
+    delay(20);
     digitalWrite(12, HIGH);
-    delay(50);
+    delay(20);
     digitalWrite(13, LOW);
-    delay(50);
+    delay(20);
     digitalWrite(12, LOW);
   }
   return direction;
