@@ -32,9 +32,27 @@ class SimpleDial(QtWidgets.QDial):
                                 self.color['a']
                                 )
         qp = QtGui.QPainter(self)
+
+        if self.mode == 'temp':
+            gradColor0 = QtGui.QColor(255, 0, 0, 180)
+            gradColor1 = QtGui.QColor(0, 0, 255, 180)
+        elif self.mode == 'fan':
+            gradColor0 = QtGui.QColor(220, 220, 220, 180)
+            gradColor1 = QtGui.QColor(0, 0, 0, 180)
+        else:
+            gradColor0 = QtGui.QColor(180, 180, 180, 180)
+            gradColor1 = QtGui.QColor(180, 180, 180, 180)
         qp.setRenderHints(qp.Antialiasing)
-        qp.setPen(QtGui.QPen(penColor, 4))
-        qp.drawEllipse(br)
+        gradient = QtGui.QConicalGradient()
+        gradient.setCenter(br.center())
+        gradient.setAngle(270)
+        gradient.setColorAt(0, gradColor0)
+        gradient.setColorAt(1, gradColor1)
+        #pen.setCapStyle(Qt::RoundCap);
+
+        qp.setPen(QtGui.QPen(QtGui.QBrush(gradient), 4))
+        #qp.drawEllipse(br)
+        qp.drawArc(br, 290*16, 320*16)
 
         # find the "real" value ratio between minimum and maximum
         realValue = (self.value() - self.minimum()) / (self.maximum() - self.minimum())
