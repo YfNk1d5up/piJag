@@ -17,6 +17,8 @@ class SimpleDial(QtWidgets.QDial):
         # this is partially taken from the fusion style helper source
         width = opt.rect.width()
         height = opt.rect.height()
+
+        # Temp line
         r = min(width, height) / 2
         r -= r / 50
         d_ = r / 6
@@ -26,12 +28,86 @@ class SimpleDial(QtWidgets.QDial):
             int(r * 2 - 2 * d_ - 2),
             int(r * 2 - 2 * d_ - 2))
 
-        penColor = QtGui.QColor(self.color['r'],
+        # In line
+        r_in = min(width, height) / 10
+        r_in -= r_in / 50
+        d_in = r_in / 6
+        dx_in = opt.rect.x() + d_in + (width - 2 * r_in) / 2 + 1
+        dy_in = opt.rect.y() + d_in + (height - 2 * r_in) / 2 + 1
+        br_in = QtCore.QRectF(dx_in + .5, dy_in + .5,
+                           int(r_in * 2 - 2 * d_in - 2),
+                           int(r_in * 2 - 2 * d_in - 2))
+
+        # Out line
+        r_out = min(width, height) / 3
+        r_out -= r_out / 50
+        d_out = r_out / 6
+        dx_out = opt.rect.x() + d_out + (width - 2 * r_out) / 2 + 1
+        dy_out = opt.rect.y() + d_out + (height - 2 * r_out) / 2 + 1
+        br_out = QtCore.QRectF(dx_out + .5, dy_out + .5,
+                           int(r_out * 2 - 2 * d_out - 2),
+                           int(r_out * 2 - 2 * d_out - 2))
+
+        # Countain line
+        r_countain = min(width, height) / 2.5
+        r_countain -= r_countain / 50
+        d_countain = r_countain / 6
+        dx_countain = opt.rect.x() + d_countain + (width - 2 * r_countain) / 2 + 1
+        dy_countain = opt.rect.y() + d_countain + (height - 2 * r_countain) / 2 + 1
+        br_countain = QtCore.QRectF(dx_countain + .5, dy_countain + .5,
+                               int(r_countain * 2 - 2 * d_countain - 2),
+                               int(r_countain * 2 - 2 * d_countain - 2))
+
+        qp = QtGui.QPainter(self)
+
+        # find the "real" value ratio between minimum and maximum
+        realValue = (self.value() - self.minimum()) / (self.maximum() - self.minimum())
+        # compute the angle at which the dial handle should be placed, assuming
+        # a range between 240° and 300° (moving clockwise)
+        angle = 240 - 300 * realValue
+        # create a polar line for the position of the handle; this can also
+        # be done using the math module with some performance improvement
+        line = QtCore.QLineF.fromPolar(r * .4, angle)
+        line.translate(br.center())
+        ds = r / 16
+        # create the handle rect and position it at the end of the polar line
+        handleRect = QtCore.QRectF(0, 0, ds, ds)
+        handleRect.moveCenter(line.p2())
+
+        line_opposite = QtCore.QLineF.fromPolar(- r * .6, angle)
+        line_opposite.translate(br.center())
+        ds = r / 5
+        # create the handle rect and position it at the end of the polar line
+        handleRect_opposite = QtCore.QRectF(0, 0, ds, ds)
+        handleRect_opposite.moveCenter(line_opposite.p2())
+
+
+
+
+
+
+        dynPenColor = QtGui.QColor(self.color['r'],
                                 self.color['g'],
                                 self.color['b'],
                                 self.color['a']
                                 )
-        qp = QtGui.QPainter(self)
+
+        dynPen = QtGui.QPen(dynPenColor, 12)
+        dynPen.setCapStyle(QtCore.Qt.RoundCap)
+
+        greyPenColor = QtGui.QColor(127,
+                                127,
+                                127,
+                                127
+                                )
+        greyPen = QtGui.QPen(greyPenColor, 2)
+
+        whitePenColor = QtGui.QColor(255,
+                                     255,
+                                     255,
+                                     255
+                                     )
+        whitePen = QtGui.QPen(whitePenColor, 1)
 
         if self.mode == 'temp':
             gradColor0 = QtGui.QColor(255, 0, 0, 180)
@@ -42,33 +118,76 @@ class SimpleDial(QtWidgets.QDial):
         else:
             gradColor0 = QtGui.QColor(180, 180, 180, 180)
             gradColor1 = QtGui.QColor(180, 180, 180, 180)
+
         qp.setRenderHints(qp.Antialiasing)
         gradient = QtGui.QConicalGradient()
         gradient.setCenter(br.center())
         gradient.setAngle(270)
         gradient.setColorAt(0, gradColor0)
         gradient.setColorAt(1, gradColor1)
-        #pen.setCapStyle(Qt::RoundCap);
 
-        qp.setPen(QtGui.QPen(QtGui.QBrush(gradient), 4))
-        #qp.drawEllipse(br)
+        gradPenColor = QtGui.QBrush(gradient)
+        gradPen = QtGui.QPen(gradPenColor, 4)
+        gradPen.setCapStyle(QtCore.Qt.RoundCap)
+
+        # Fill in and out circle
+
+        gradColor0 = QtGui.QColor(220, 220, 220, 255)
+        gradColor1 = QtGui.QColor(127, 127, 127, 127)
+
+        mid_gradient = QtGui.QLinearGradient(handleRect.center().x(),
+                                             handleRect.center().y(),
+                                             handleRect_opposite.center().x(),
+                                             handleRect_opposite.center().y()
+                                             )
+        mid_gradient.setColorAt(0, gradColor1)
+        mid_gradient.setColorAt(1, gradColor0)
+        gradMidColor = QtGui.QBrush(mid_gradient)
+
+        big_gradient = QtGui.QLinearGradient(handleRect.center().x(),
+                                             handleRect.center().y(),
+                                             handleRect_opposite.center().x(),
+                                             handleRect_opposite.center().y()
+                                             )
+        big_gradient.setColorAt(0, gradColor0)
+        big_gradient.setColorAt(1, gradColor1)
+        gradBigColor = QtGui.QBrush(big_gradient)
+
+        circlePath = QtGui.QPainterPath()
+        circlePath.moveTo(dx_countain, dy_countain)
+        circlePath.arcTo(br_countain, 0.0, 360.0)
+
+        qp.fillPath(circlePath, greyPenColor)
+
+        circlePath = QtGui.QPainterPath()
+        circlePath.moveTo(dx_out, dy_out)
+        circlePath.arcTo(br_out, 0.0, 360.0)
+
+        qp.fillPath(circlePath, gradBigColor)
+
+        circlePath = QtGui.QPainterPath()
+        circlePath.moveTo(dx_in, dy_in)
+        circlePath.arcTo(br_in, 0.0, 360.0)
+
+        qp.fillPath(circlePath, gradMidColor)
+
+
+
+        qp.setPen(dynPen)
+        qp.drawArc(br, 290 * 16, 320 * 16)
+
+        qp.setPen(gradPen)
         qp.drawArc(br, 290*16, 320*16)
 
-        # find the "real" value ratio between minimum and maximum
-        realValue = (self.value() - self.minimum()) / (self.maximum() - self.minimum())
-        # compute the angle at which the dial handle should be placed, assuming
-        # a range between 240° and 300° (moving clockwise)
-        angle = 240 - 300 * realValue
-        # create a polar line for the position of the handle; this can also
-        # be done using the math module with some performance improvement
-        line = QtCore.QLineF.fromPolar(r * .6, angle)
-        line.translate(br.center())
-        ds = r / 5
-        # create the handle rect and position it at the end of the polar line
-        handleRect = QtCore.QRectF(0, 0, ds, ds)
-        handleRect.moveCenter(line.p2())
-        qp.setPen(QtGui.QPen(penColor, 2))
+        qp.setPen(whitePen)
+        #qp.drawEllipse(br_in)
+        qp.setPen(QtGui.QPen(dynPenColor, 1))
+        qp.drawEllipse(br_out)
+
+        qp.setPen(QtGui.QPen(dynPenColor, 6))
         qp.drawEllipse(handleRect)
+
+
 
     def changeColor(self, temp):
         try:
@@ -81,7 +200,7 @@ class SimpleDial(QtWidgets.QDial):
         if self.mode == 'temp':
             r = int(255* (_valDial/30))
             b = int(255* (1 - _valDial/30))
-            return {'r': r, 'g': 0, 'b': b, 'a': 180}
+            return {'r': r, 'g': 0, 'b': b, 'a': 110}
         elif self.mode == 'fan':
             r = int(220 * ((_valDial - 1) / 11))
             g = int(220 * ((_valDial - 1) / 11))
@@ -276,6 +395,8 @@ def temp2tempDial(_temp):
             dial = int((float(_temp) - 16) * 2)
         return dial
     except ValueError:
+        return 15
+    except IndexError:
         return 15
 
 def fan(value):

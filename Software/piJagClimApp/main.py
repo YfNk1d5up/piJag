@@ -34,39 +34,37 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.serialReaderThread.start()
         self.serialWriterThread.start()
 
-        # Label Values
-
+        # Label default values
         self._temp = ""
         self._fan = ""
         self._air = ""
+
+        # Dial default values
         self._tempDial = 15
         self._fanDial = 5
 
+        # "on" default value
+        self._on = 'Off'
+
+        # OnOff
+        self.onoffButton.clicked.connect(self.onoff)
 
         # Temperature
-
-        #self.tempDial.setValue(21)
-        #self.tempValueLabel.setText("26.5")
-        #self.temp = self.tempDial.value()
-
-        self.tempDial.valueChanged.connect(self.changeTemp)
+        self.tempDial.sliderReleased.connect(self.changeTemp)
+        self.tempDial.valueChanged.connect(self.changeTempColor)
         self.tempPlusButton.clicked.connect(self.plusTemp)
         self.tempMinusButton.clicked.connect(self.minusTemp)
         self.tempAutoButton.clicked.connect(self.autoTemp)
         self.tempACButton.clicked.connect(self.tempAC)
 
         # Fan
-
-        #self.fanDial.setValue(5)
-        #self.fan = self.fanDial.value()
-
-        self.fanDial.valueChanged.connect(self.changeFan)
+        self.fanDial.sliderReleased.connect(self.changeFan)
+        self.fanDial.valueChanged.connect(self.changeFanColor)
         self.fanMinusButton.clicked.connect(self.minusFan)
         self.fanPlusButton.clicked.connect(self.plusFan)
         self.fanAutoButton.clicked.connect(self.autoFan)
 
         # Controls
-
         self.airFaceButton.clicked.connect(self.airFace)
         self.airFeetButton.clicked.connect(self.airFeet)
         self.airFeetFaceButton.clicked.connect(self.airFeetFace)
@@ -78,23 +76,43 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.write(b'\x10') # Ask for values
 
     def serialPacketReceiverCallback(self, packet):
-        self._temp = temp(packet)
-        self._fan = fan(packet)
-        self._air = air(packet)
+        if packet[13] == '00':
+            self._temp = ''
+            self._fan = ''
+            self._air = ''
+            self.onoffButton.setText('On')
+        else:
+            self._temp = temp(packet)
+            self._fan = fan(packet)
+            self._air = air(packet)
+            self.onoffButton.setText('Off')
         self.tempValueLabel.setText(self._temp)
         self.fanValueLabel.setText(self._fan)
         self.airValueLabel.setText(self._air)
         self._tempDial = temp2tempDial(self._temp)
         self.tempDial.setValue(self._tempDial)
         self.tempDial.changeColor(self._tempDial)
+        print(self._fan)
         if self._fan != 'Auto':
-            self._fanDial = int(self._fan)
-            self.fanDial.setValue(self._fanDial)
+            try:
+                self._fanDial = int(self._fan)
+                self.fanDial.setValue(self._fanDial)
+            except:
+                self.fanDial.setValue(6)
             self.fanDial.changeColor(self._fanDial)
-
+        """
+        else:
+            print('ok')
+            self.fanDial.setValue(6)
+            self.fanDial.changeColor(6)
+        """
 
     def write(self, x):
         self.serialWriterThread.write(x)
+
+    def onoff(self):
+        self.write(b'\x01')
+
     # Temperature
     def plusTemp(self, fromChange = False):
         self.write(b'\x03')
@@ -102,13 +120,20 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.write(b'\x02')
 
     def changeTemp(self):
+        self.serialWriterThread.clearQueues()
         _temp = self.tempDial.value()
         diff = int(_temp) - int(self._tempDial)
+        print(diff)
         for i in range(abs(diff)):
             if diff < 0:
                 self.minusTemp(True)
-            else:
+            elif diff > 0:
                 self.plusTemp(True)
+            else:
+                break
+
+    def changeTempColor(self):
+        self.tempDial.changeColor(self.tempDial.value())
     def autoTemp(self):
         self.write("?")
     def tempAC(self):
@@ -120,13 +145,18 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
     def minusFan(self, fromChange = False):
         self.write(b'\x0e')
     def changeFan(self):
+        self.serialWriterThread.clearQueues()
         _fan = self.fanDial.value()
         diff = int(_fan) - int(self._fanDial)
         for i in range(abs(diff)):
             if diff < 0:
                 self.minusFan()
-            else:
+            elif diff > 0:
                 self.plusFan()
+            else:
+                break
+    def changeFanColor(self):
+        self.fanDial.changeColor(self.fanDial.value())
     def autoFan(self):
         self.write(b'\x04')
 
