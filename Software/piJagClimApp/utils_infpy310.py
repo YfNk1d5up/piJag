@@ -1,8 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 class SimpleDial(QtWidgets.QDial):
 
-
-    def paintEvent(self, event=None, red=255, green=0, blue=0, alpha=127):
+    def __init__(self, parent, mode=None):
+        super(SimpleDial, self).__init__(parent)
+        self.color = {'r': 255, 'g': 0, 'b': 0, 'a': 127}
+        self.mode = mode
+    def paintEvent(self, event=None):
         # create a QStyleOption for the dial, and initialize it with the basic properties
         # that will be used for the configuration of the painter
         opt = QtWidgets.QStyleOptionSlider()
@@ -22,7 +26,11 @@ class SimpleDial(QtWidgets.QDial):
             int(r * 2 - 2 * d_ - 2),
             int(r * 2 - 2 * d_ - 2))
 
-        penColor = QtGui.QColor(red, green, blue, alpha)
+        penColor = QtGui.QColor(self.color['r'],
+                                self.color['g'],
+                                self.color['b'],
+                                self.color['a']
+                                )
         qp = QtGui.QPainter(self)
         qp.setRenderHints(qp.Antialiasing)
         qp.setPen(QtGui.QPen(penColor, 4))
@@ -44,60 +52,26 @@ class SimpleDial(QtWidgets.QDial):
         qp.setPen(QtGui.QPen(penColor, 2))
         qp.drawEllipse(handleRect)
 
-    def changeColor(self,r,g,b,a):
-        self.paintEvent(r,g,b,a)
-"""
-class GaugeWidget(QtGui.QWidget):
+    def changeColor(self, temp):
+        try:
+            self.color = self.evaluateColor(temp)
+            self.update()
+        except:
+            pass
 
-    def __init__(self, initialValue=0, *args, **kwargs):
-        super(GaugeWidget, self).__init__(*args, **kwargs)
-        self._bg = QtGui.QPixmap("bg.png")
-        self.setValue(initialValue)
+    def evaluateColor(self, _valDial):
+        if self.mode == 'temp':
+            r = int(255* (_valDial/30))
+            b = int(255* (1 - _valDial/30))
+            return {'r': r, 'g': 0, 'b': b, 'a': 180}
+        elif self.mode == 'fan':
+            r = int(220 * ((_valDial - 1) / 11))
+            g = int(220 * ((_valDial - 1) / 11))
+            b = int(220 * ((_valDial - 1) / 11))
+            return {'r': r, 'g': g, 'b': b, 'a': 180}
+        else:
+            return {'r': 150, 'g': 150, 'b': 150, 'a': 127}
 
-    def setValue(self, val):
-        val = float(min(max(val, 0), 1))
-        self._value = -270 * val
-        self.update()
-
-
-    def paintEvent(self, event):
-        painter = QtGui.QPainter(self)
-        painter.setRenderHint(painter.Antialiasing)
-        rect = event.rect()
-
-        gauge_rect = QtCore.QRect(rect)
-        size = gauge_rect.size()
-        pos = gauge_rect.center()
-        gauge_rect.moveCenter( QtCore.QPoint(pos.x()-size.width(), pos.y()-size.height()) )
-        gauge_rect.setSize(size*.9)
-        gauge_rect.moveCenter(pos)
-
-        refill_rect = QtCore.QRect(gauge_rect)
-        size = refill_rect.size()
-        pos = refill_rect.center()
-        refill_rect.moveCenter( QtCore.QPoint(pos.x()-size.width(), pos.y()-size.height()) )
-        # smaller than .9 == thicker gauge
-        refill_rect.setSize(size*.9)
-        refill_rect.moveCenter(pos)
-
-        painter.setPen(QtCore.Qt.NoPen)
-
-        painter.drawPixmap(rect, self._bg)
-
-        painter.save()
-        grad = QtGui.QConicalGradient(QtCore.QPointF(gauge_rect.center()), 270.0)
-        grad.setColorAt(.75, QtCore.Qt.green)
-        grad.setColorAt(.5, QtCore.Qt.yellow)
-        grad.setColorAt(.25, QtCore.Qt.red)
-        painter.setBrush(grad)
-        painter.drawPie(gauge_rect, 225.0*16, self._value*16)
-        painter.restore()
-
-        painter.setBrush(QtGui.QBrush(self._bg.scaled(rect.size())))
-        painter.drawEllipse(refill_rect)
-
-        super(GaugeWidget,self).paintEvent(event)
-"""
 class readObject():
     def __init__(self, x):
         self.x = x
