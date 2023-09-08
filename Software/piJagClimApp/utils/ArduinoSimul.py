@@ -96,8 +96,8 @@ class arduinoSimul():
 
         elif x == b'\x09': # front defrost & feet
             self.values[10] = '80'
-            self.values[9] = '80'
-            self.values[7] = '88'
+            self.values[9] = '88'
+            self.values[7] = '80'
 
         elif x == b'\x0a': # A / C
             pass

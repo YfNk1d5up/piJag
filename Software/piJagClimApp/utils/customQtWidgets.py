@@ -310,3 +310,74 @@ class SimpleDial(QtWidgets.QDial):
             return {'r': r, 'g': g, 'b': b, 'a': 180}
         else:
             return {'r': 150, 'g': 150, 'b': 150, 'a': 127}
+
+    def getColor(self):
+        return self.color
+
+class RoundButton(QtWidgets.QPushButton):
+
+    def __init__(self, parent, color = {'r': 0, 'g': 0, 'b': 0, 'a': 255}, icon = None, icon_ratio = 0.6, fill = False):
+        super(RoundButton, self).__init__(parent)
+        self.color = color
+        self.icon = icon
+        self.icon_ratio = icon_ratio
+        self.fill = fill
+        self._selected = False
+
+    def paintEvent(self, event=None):
+        qp = QtGui.QPainter(self)
+        smallest_dimension = min(self.rect().width(), self.rect().height())
+        rect_fade = QtCore.QRect(0,0,0.8*smallest_dimension,0.8*smallest_dimension)
+        rect = QtCore.QRect(0, 0, 0.7 * smallest_dimension, 0.7 * smallest_dimension)
+        rect_fade.moveCenter(self.rect().center())
+        rect.moveCenter(self.rect().center())
+
+
+        dynPenColor = QtGui.QColor(0,0,0,255)
+
+
+        gradColor0 = QtGui.QColor(self.color['r'],
+                                   self.color['g'],
+                                   self.color['b'],
+                                   180
+                                   )
+        gradColor1 = QtGui.QColor(self.color['r'],
+                                   self.color['g'],
+                                   self.color['b'],
+                                   0
+                                   )
+
+        qp.setRenderHints(qp.Antialiasing)
+        gradient = QtGui.QRadialGradient(self.rect().center(), 0.85 * 30)
+        gradient.setColorAt(0, gradColor0)
+        gradient.setColorAt(0.75, gradColor0)
+        gradient.setColorAt(1, gradColor1)
+
+        gradPenColor = QtGui.QBrush(gradient)
+
+
+
+        if self._selected:
+            qp.setPen(QtGui.QPen(gradPenColor, 5))
+            if self.fill:
+                path = QtGui.QPainterPath()
+                path.addEllipse(QtCore.QRectF(rect))
+                qp.fillPath(path, gradPenColor)
+            qp.drawEllipse(rect_fade)
+
+        qp.setPen(QtGui.QPen(dynPenColor, 1))
+        qp.drawEllipse(rect)
+
+        source = QtGui.QPixmap(self.icon)
+        source = source.scaled(self.icon_ratio*smallest_dimension, self.icon_ratio*smallest_dimension, QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)
+        x, y = (self.rect().width() - source.width()) / 2, (self.rect().height() - source.height()) / 2
+        qp.drawPixmap(x, y, source)
+
+
+    def select(self, color):
+        self.color = color
+        self._selected = True
+        self.update()
+    def deselect(self):
+        self._selected = False
+        self.update()
