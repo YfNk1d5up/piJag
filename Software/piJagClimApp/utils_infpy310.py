@@ -1,4 +1,26 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+class SimpleDisk(QtWidgets.QWidget):
+    def __init__(self, parent, color={'r': 255, 'g': 255, 'b': 255, 'a': 127}):
+        super(SimpleDisk, self).__init__(parent)
+        self.color = color
+
+    def paintEvent(self, event=None):
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(painter.Antialiasing)
+        dynPenColor = QtGui.QColor(self.color['r'],
+                                   self.color['g'],
+                                   self.color['b'],
+                                   self.color['a']
+                                   )
+        painter.setBrush(QtGui.QBrush(dynPenColor))
+        painter.setPen(QtGui.QColor(0,0,0,0))
+        rect = QtCore.QRect(0,0,self.width(),self.height())
+
+        painter.drawRoundedRect(rect, self.width(), self.height())
+
+    def updateColor(self, _color):
+        self.color = _color
+        self.update()
 
 class SimpleDial(QtWidgets.QDial):
 
@@ -6,6 +28,54 @@ class SimpleDial(QtWidgets.QDial):
         super(SimpleDial, self).__init__(parent)
         self.color = {'r': 255, 'g': 0, 'b': 0, 'a': 127}
         self.mode = mode
+        self._temp = ''
+
+        self.child = SimpleDisk(self)
+        self.child.resize(60, 60)
+        self.child.setVisible(False)
+        self._cursorPoint = QtCore.QPoint()
+        self.center = QtCore.QPoint()
+
+        # Animation
+        effect1 = QtWidgets.QGraphicsOpacityEffect(self.child)
+        effect1.setOpacity(1)
+        self.child.setGraphicsEffect(effect1)
+
+        self.anim = QtCore.QPropertyAnimation(self.child, b"size")
+        self.anim.setEasingCurve(QtCore.QEasingCurve.InOutCubic)
+        self.anim.setStartValue(QtCore.QSize(10, 10))
+        self.anim.setEndValue(QtCore.QSize(0, 0))
+        self.anim.setDuration(1000)
+
+
+        self.anim0 = QtCore.QPropertyAnimation(effect1, b"opacity")
+        self.anim0.setStartValue(0)
+        self.anim0.setEndValue(0.9)
+        self.anim0.setDuration(200)
+
+
+        self.anim1 = QtCore.QPropertyAnimation(self.child, b"pos")
+        self.anim1.setEasingCurve(QtCore.QEasingCurve.InOutCubic)
+        self.anim1.setDuration(1000)
+
+        self.anim2 = QtCore.QPropertyAnimation(self.child, b"size")
+        self.anim2.setEasingCurve(QtCore.QEasingCurve.InOutCubic)
+        self.anim2.setStartValue(QtCore.QSize(12, 12))
+        self.anim2.setEndValue(QtCore.QSize(60, 60))
+        self.anim2.setDuration(1000)
+
+
+        self.anim3 = QtCore.QPropertyAnimation(effect1, b"opacity")
+        self.anim3.setStartValue(0.7)
+        self.anim3.setEndValue(0)
+        self.anim3.setDuration(200)
+
+        self.anim_sub_group = QtCore.QParallelAnimationGroup()
+        self.anim_sub_group.addAnimation(self.anim1)
+        self.anim_sub_group.addAnimation(self.anim2)
+
+        self._onAnim = False
+
     def paintEvent(self, event=None):
         # create a QStyleOption for the dial, and initialize it with the basic properties
         # that will be used for the configuration of the painter
@@ -17,7 +87,7 @@ class SimpleDial(QtWidgets.QDial):
         # this is partially taken from the fusion style helper source
         width = opt.rect.width()
         height = opt.rect.height()
-
+        self.center = QtCore.QPoint(int((width-self.child.width())/2), int((height-self.child.height())/2))
         # Temp line
         r = min(width, height) / 2
         r -= r / 50
@@ -74,17 +144,14 @@ class SimpleDial(QtWidgets.QDial):
         handleRect = QtCore.QRectF(0, 0, ds, ds)
         handleRect.moveCenter(line.p2())
 
+        self._cursorPoint = handleRect.center().toPoint()
+
         line_opposite = QtCore.QLineF.fromPolar(- r * .6, angle)
         line_opposite.translate(br.center())
         ds = r / 5
         # create the handle rect and position it at the end of the polar line
         handleRect_opposite = QtCore.QRectF(0, 0, ds, ds)
         handleRect_opposite.moveCenter(line_opposite.p2())
-
-
-
-
-
 
         dynPenColor = QtGui.QColor(self.color['r'],
                                 self.color['g'],
@@ -184,17 +251,44 @@ class SimpleDial(QtWidgets.QDial):
         qp.setPen(QtGui.QPen(dynPenColor, 1))
         qp.drawEllipse(br_out)
 
-        qp.setPen(QtGui.QPen(dynPenColor, 6))
-        qp.drawEllipse(handleRect)
+        if not self._onAnim:
+            qp.setPen(QtGui.QPen(dynPenColor, 6))
+            qp.drawEllipse(handleRect)
+
+        br.moveTop(r)
+        print(self._temp)
+        qp.drawText(br, QtCore.Qt.AlignCenter, self._temp)
 
 
 
-    def changeColor(self, temp):
+
+    def changeColor(self, val):
         try:
-            self.color = self.evaluateColor(temp)
+            if self.mode=='temp':
+                val_dial = tempDial2temp(val)
+                print(val_dial)
+            else:
+                val_dial = val
+            self.color = self.evaluateColor(val_dial)
+            self._onAnim = False
+            self.child.setVisible(False)
+            self._temp = str(val)
             self.update()
         except:
             pass
+    def animateCursor(self):
+        if not self._onAnim:
+            self._onAnim = True
+            self._temp = 'Auto'
+            self.child.updateColor(self.color)
+            _cursorCenter = QtCore.QPoint(int(self._cursorPoint.x() - 6),
+                                          int(self._cursorPoint.y() - 6)
+                                          )
+            self.child.setVisible(True)
+            self.anim1.setStartValue(_cursorCenter)
+            self.anim1.setEndValue(self.center)
+            self.anim_sub_group.start()
+            self.update()
 
     def evaluateColor(self, _valDial):
         if self.mode == 'temp':
@@ -226,10 +320,15 @@ class arduinoSimul():
                   }
         self.dict_fans = {'1': "00-a0", '2': "00-e0", '3': "00-f0", '4': "01-f0", '5': "05-f0", '6': "07-f0",
             '7': "0f-f0", '8': "8f-f0", '9': "af-f0", '10': "ef-f0", '11': "ff-f0"}
+        self.on = True
         self.i = 0
     def write(self, x):
         if x == b'\x01': # ONOFF
-            pass
+            if self.on == True:
+                self.values[13] = '00'
+            else:
+                self.values[13] = 'e0'
+            self.on = not self.on
 
         elif x == b'\x02': # minus
             _temp = temp(self.values)
@@ -398,6 +497,19 @@ def temp2tempDial(_temp):
         return 15
     except IndexError:
         return 15
+
+def tempDial2temp(_tempDial):
+    try:
+        if _tempDial == 0:
+            return 'LO'
+        elif _tempDial == 30:
+            return 'HI'
+        else:
+            return str(25.5 + (_tempDial - 15) / 2)
+    except ValueError:
+        return '25.5'
+    except IndexError:
+        return '25.5'
 
 def fan(value):
     val = value[17] + "-" + value[18]
