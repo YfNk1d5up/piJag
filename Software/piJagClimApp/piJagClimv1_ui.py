@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from utils_infpy310 import SimpleDial
+from utils.customDial import SimpleDial
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):

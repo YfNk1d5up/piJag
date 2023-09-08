@@ -2,9 +2,10 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication
 
 import piJagClimv1_ui
-from arduinoReader import SerialReaderThread
-from arduinoWriter import SerialWriterThread
-from utils_infpy310 import arduinoSimul, temp, fan, air, temp2tempDial
+from utils.arduinoReader import SerialReaderThread
+from utils.arduinoWriter import SerialWriterThread
+from utils.ArduinoSimul import arduinoSimul
+from utils.utils import temp, fan, air, temp2tempDial
 import serial
 import serial.tools.list_ports
 import time
@@ -56,6 +57,11 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.tempMinusButton.clicked.connect(self.minusTemp)
         self.tempAutoButton.clicked.connect(self.autoTemp)
         self.tempACButton.clicked.connect(self.tempAC)
+        self.tempDial.setEnabled(False)
+        self.tempPlusButton.setEnabled(False)
+        self.tempMinusButton.setEnabled(False)
+        self.tempAutoButton.setEnabled(False)
+        self.tempACButton.setEnabled(False)
 
         # Fan
         self.fanDial.sliderReleased.connect(self.changeFan)
@@ -63,6 +69,10 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.fanMinusButton.clicked.connect(self.minusFan)
         self.fanPlusButton.clicked.connect(self.plusFan)
         self.fanAutoButton.clicked.connect(self.autoFan)
+        self.fanDial.setEnabled(False)
+        self.fanMinusButton.setEnabled(False)
+        self.fanPlusButton.setEnabled(False)
+        self.fanAutoButton.setEnabled(False)
 
         # Controls
         self.airFaceButton.clicked.connect(self.airFace)
@@ -71,6 +81,12 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.airFrontDefrostButton.clicked.connect(self.airFront)
         self.airRearDefrostButton.clicked.connect(self.airRear)
         self.airRecyclingButton.clicked.connect(self.airRecycle)
+        self.airFaceButton.setEnabled(False)
+        self.airFeetButton.setEnabled(False)
+        self.airFeetFaceButton.setEnabled(False)
+        self.airFrontDefrostButton.setEnabled(False)
+        self.airRearDefrostButton.setEnabled(False)
+        self.airRecyclingButton.setEnabled(False)
 
         time.sleep(1.5) # Wait for threads to initialize
         self.write(b'\x10') # Ask for values
@@ -88,12 +104,15 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
             self._air = air(packet)
             self.onoffButton.setText('Off')
             self._on = True
+        self.tempDial.setVal(self._temp)
         self.tempValueLabel.setText(self._temp)
         self.fanValueLabel.setText(self._fan)
         self.airValueLabel.setText(self._air)
         self._tempDial = temp2tempDial(self._temp)
         self.tempDial.setValue(self._tempDial)
         self.tempDial.changeColor(self._tempDial)
+
+        self.fanDial.setVal(self._fan)
         if self._fan != 'Auto':
             try:
                 self._fanDial = int(self._fan)
