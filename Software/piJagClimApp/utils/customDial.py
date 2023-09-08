@@ -141,7 +141,7 @@ class SimpleDial(QtWidgets.QDial):
         # be done using the math module with some performance improvement
         line = QtCore.QLineF.fromPolar(r * .4, angle)
         line.translate(br.center())
-        ds = r / 16
+        ds = r / 20
         # create the handle rect and position it at the end of the polar line
         handleRect = QtCore.QRectF(0, 0, ds, ds)
         handleRect.moveCenter(line.p2())

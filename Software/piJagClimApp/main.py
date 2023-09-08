@@ -88,6 +88,10 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.airRearDefrostButton.setEnabled(False)
         self.airRecyclingButton.setEnabled(False)
 
+        self.list_air_buttons = [self.airFeetFaceButton, self.airFaceButton, self.airFeetButton,
+                                 self.airFeetFaceButton, self.airFrontDefrostButton,
+                                 self.airRearDefrostButton, self.airRecyclingButton]
+
         time.sleep(1.5) # Wait for threads to initialize
         self.write(b'\x10') # Ask for values
 
@@ -105,9 +109,9 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
             self.onoffButton.setText('Off')
             self._on = True
         self.tempDial.setVal(self._temp)
-        self.tempValueLabel.setText(self._temp)
-        self.fanValueLabel.setText(self._fan)
         self.airValueLabel.setText(self._air)
+        self.updateButtonsBackground()
+
         self._tempDial = temp2tempDial(self._temp)
         self.tempDial.setValue(self._tempDial)
         self.tempDial.changeColor(self._tempDial)
@@ -233,6 +237,21 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.write(b'\x0b')
     def airRecycle(self):
         self.write(b'\x0c')
+
+    def updateButtonsBackground(self):
+        grey = "background-color:rgb(180,180,180);"
+        white = "background-color:rgb(255,255,255);"
+        for button in self.list_air_buttons:
+            button.setStyleSheet(white)
+        if self._air == 'Face':
+            self.airFaceButton.setStyleSheet(grey)
+        elif self._air == 'Feet':
+            self.airFeetButton.setStyleSheet(grey)
+        elif self._air == 'Face&Feet':
+            self.airFeetFaceButton.setStyleSheet(grey)
+        elif self._air == 'Front':
+            self.airFrontDefrostButton.setStyleSheet(grey)
+
 
 
 def main():
