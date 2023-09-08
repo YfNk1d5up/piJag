@@ -255,6 +255,6 @@ To communicate with the arduino onboard, a pyQt App controls the mod, associated
 [piJagClimI2C.ino](Hardware/piJagClim/newPCB/arduino/piJagClimI2C/piJagClimI2C.ino)
 
 Here you can see the Qt App v0.1 :
-![piJagClimAppv0.1](https://github.com/YfNk1d5up/piJag/blob/02c07f15b5d4da5aba3c15b77e0242e454c88a4f/Pictures/qtPiJagClimApp_v0.1.png)
+![piJagClimAppv0.1](https://github.com/YfNk1d5up/piJag/blob/2706c3c8dbcbc8a23cfa7261da02db3f3a8c7a1b/Pictures/qtPiJagClimApp_v0.11.png)
 
 ## Ressources
