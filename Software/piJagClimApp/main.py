@@ -40,8 +40,11 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self._temp = ""
         self._fan = ""
         self._air = ""
-        self._color = {'r': 0, 'g': 0, 'b': 0, 'a': 255}
+
+        self._ac = False
         self._rear = False
+        self._color = {'r': 0, 'g': 0, 'b': 0, 'a': 255}
+
         # Dial default values
         self._tempDial = 15
         self._fanDial = 5
@@ -57,12 +60,10 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.tempDial.valueChanged.connect(self.changeTempColor)
         self.tempPlusButton.clicked.connect(self.plusTemp)
         self.tempMinusButton.clicked.connect(self.minusTemp)
-        self.tempAutoButton.clicked.connect(self.autoTemp)
         self.tempACButton.clicked.connect(self.tempAC)
         self.tempDial.setEnabled(False)
         self.tempPlusButton.setEnabled(False)
         self.tempMinusButton.setEnabled(False)
-        self.tempAutoButton.setEnabled(False)
         self.tempACButton.setEnabled(False)
 
         # Fan
@@ -128,13 +129,21 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.fanDial.setVal(self._fan)
         if self._fan != 'Auto':
             try:
+                self.fanAutoButton.deselect()
                 self._fanDial = int(self._fan)
                 self.fanDial.setValue(self._fanDial)
             except:
                 self.fanDial.setValue(6)
             self.fanDial.changeColor(self._fanDial)
         else:
+            self.fanAutoButton.select(color=self.fanDial.getColor())
             self.fanDial.animateCursor()
+
+        if self._tempDial < 10 and self._ac:
+            self.tempACButton.select(self._color)
+        if self._tempDial > 10 or self._air == 'Front':
+            self._ac = False
+            self.tempACButton.deselect()
 
     def write(self, x):
         self.serialWriterThread.write(x)
@@ -147,7 +156,6 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
             self.tempDial.setEnabled(False)
             self.tempPlusButton.setEnabled(False)
             self.tempMinusButton.setEnabled(False)
-            self.tempAutoButton.setEnabled(False)
             self.tempACButton.setEnabled(False)
 
             # Fan
@@ -172,7 +180,6 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
             self.tempDial.setEnabled(True)
             self.tempPlusButton.setEnabled(True)
             self.tempMinusButton.setEnabled(True)
-            self.tempAutoButton.setEnabled(True)
             self.tempACButton.setEnabled(True)
 
             # Fan
@@ -217,6 +224,14 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         #self.tempDial.animateCursor()
     def tempAC(self):
         self.write(b'\x0a')
+        if self._tempDial < 10:
+            self._ac = not self._ac
+            """
+            if self._ac:
+                self.tempACButton.select(self._color)
+            else:
+                self.tempACButton.deselect()
+            """
 
     # Fan
     def plusFan(self, fromChange = False):
