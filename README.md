@@ -239,7 +239,7 @@ You can see here a switches matrix, using 6 wires for 12 buttons. An I2C screen 
 What I used for the buttons is analog switches, that works as relays except that they are small 14 pins chips, which each entry is controlled by an Arduino digital pin. For the rotary encoder, an Arduino Nano can easily simulate the signals by using two digital pins.
 Finally, using David's work about the i2c screen, I can get the information coming from the main MCU by decoding it using A4 and A5 pins on the Nano.
 
-And so here is the mod board v0.2 :
+And so here is the mod board :
 ![climateModBoardv0.2](https://github.com/YfNk1d5up/piJag/blob/02c07f15b5d4da5aba3c15b77e0242e454c88a4f/Docs/newPCBv0.2.pdf)
 ![PCB3Dv0.2](https://github.com/YfNk1d5up/piJag/blob/02c07f15b5d4da5aba3c15b77e0242e454c88a4f/Pictures/PCB3Dv0.2.png)
 
@@ -255,6 +255,6 @@ To communicate with the arduino onboard, a pyQt App controls the mod, associated
 [piJagClimI2C.ino](Hardware/piJagClim/newPCB/arduino/piJagClimI2C/piJagClimI2C.ino)
 
 Here you can see the Qt App v0.1 :
-![piJagClimAppv0.1](https://github.com/YfNk1d5up/piJag/blob/e8f9d41c996a3dab186b89f29c4423afa5c41dab/Pictures/qtPiJagClimApp_v0.12.png)
+![piJagClimAppv0.1](https://github.com/YfNk1d5up/piJag/blob/3d02eb7a5cb447b69ee84670a8609878163df63a/Pictures/qtPiJagClimApp_v0.12.png)
 
 ## Ressources
