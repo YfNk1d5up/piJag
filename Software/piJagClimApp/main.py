@@ -18,13 +18,17 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         self.setupUi(self)
 
         # Initialize and connect to serial or simulate
-
+        """
         self.comPorts = serial.tools.list_ports.comports()
         self.nameList = list(port.device for port in self.comPorts)
+        print(self.nameList)
         if len(self.nameList) > 0:
-            self.arduino = serial.Serial(port=self.nameList[0], baudrate=115200, timeout=.1)
+        """
+        # piJag.rules redirect arduino by id to port /dev/piJagClim
+        try:
+            self.arduino = serial.Serial(port='/dev/piJagClim', baudrate=115200, timeout=.1)
             self.simul = False
-        else:
+        except:
             self.arduino = arduinoSimul()
             self.simul = True
 
