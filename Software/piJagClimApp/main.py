@@ -1,3 +1,4 @@
+import os
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication
 
@@ -12,10 +13,10 @@ import time
 
 
 class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
-    def __init__(self):
+    def __init__(self, dir_folder):
         super().__init__()
 
-        self.setupUi(self)
+        self.setupUi(self, dir_folder)
 
         # Initialize and connect to serial or simulate
         """
@@ -305,13 +306,25 @@ class piJagClimateGUI(QMainWindow, piJagClimv1_ui.Ui_MainWindow):
         else:
             forced.select(self._color)
 
-
+def dir_folder():
+    """
+    Permet de controler le repertoire de python.
+    Ceci est utile lorsque nous construisons un exe
+    :return: le repertoire ou se situe le fichier source
+    """
+    if getattr(sys, 'frozen', False):
+        # we are running in a bundle'
+        bundle_dir = sys._MEIPASS
+    else:
+        # we are running in a normal Python environment
+        bundle_dir = os.path.dirname(os.path.abspath(__file__))
+    return bundle_dir
 
 def main():
     app = QApplication(sys.argv)
-    gui = piJagClimateGUI()
+    gui = piJagClimateGUI(dir_folder())
 
-    gui.show()
+    gui.showMaximized()
     app.setStyle('Fusion')
     app.exec_()
 

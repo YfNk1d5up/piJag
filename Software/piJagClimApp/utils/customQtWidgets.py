@@ -254,7 +254,7 @@ class SimpleDial(QtWidgets.QDial):
         qp.drawEllipse(br_out)
 
         if not self._onAnim:
-            qp.setPen(QtGui.QPen(dynPenColor, 6))
+            qp.setPen(QtGui.QPen(dynPenColor, 10))
             qp.drawEllipse(handleRect)
 
         br.moveTop(r)
