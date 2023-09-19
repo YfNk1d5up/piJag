@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-# Form implementation generated from reading ui file 'piJagClimv1.ui'
+# Form implementation generated from reading ui file 'piJagClimv2.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
