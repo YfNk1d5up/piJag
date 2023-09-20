@@ -2,7 +2,7 @@ import os
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication
 
-import piJagClimv2_ui
+import piJagClimv02_ui
 from utils.arduinoReader import SerialReaderThread
 from utils.arduinoWriter import SerialWriterThread
 from utils.ArduinoSimul import arduinoSimul
@@ -12,7 +12,7 @@ import serial.tools.list_ports
 import time
 
 
-class piJagClimateGUI(QMainWindow, piJagClimv2_ui.Ui_MainWindow):
+class piJagClimateGUI(QMainWindow, piJagClimv02_ui.Ui_MainWindow):
     def __init__(self, dir_folder):
         super().__init__()
 
